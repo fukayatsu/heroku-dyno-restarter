@@ -19,14 +19,20 @@ post '/webhook' do
   return 'invalid api token' unless params[:token] == ENV['APP_API_TOKEN']
 
   payload     = JSON.parse(params[:payload])
-  dyno        = payload['program'].sub(/^heroku\//, '')
-  source_name = payload['source_name']
-  restart_key = "heroku-dyno-restarter:restarts:#{source_name}:#{dyno}"
+  events      = payload['events']
 
-  return 'restaring' if $redis.get(restart_key)
-  logger.info "[RESTARTING] #{source_name}:#{dyno}"
-  $redis.setex(restart_key, 3600, 1)
-  $heroku.post_ps_restart(source_name, ps: dyno)
+  events.each do |event|
+    dyno        = event['program'].sub(/^heroku\//, '')
+    next unless dyno.match(/web/)
+
+    source_name = event['source_name']
+    restart_key = "heroku-dyno-restarter:restarts:#{source_name}:#{dyno}"
+
+    next if $redis.get(restart_key)
+    $redis.setex(restart_key, 3600, 1)
+    logger.info "[RESTARTING] #{source_name}:#{dyno}"
+    $heroku.post_ps_restart(source_name, ps: dyno)
+  end
 
   'ok'
 end
