@@ -3,13 +3,9 @@ require 'json'
 require 'redis'
 require 'heroku-api'
 
-if ENV["REDISCLOUD_URL"]
-  $redis = Redis.new(url: ENV["REDISCLOUD_URL"])
-else
-  $redis = Redis.new
-end
-
-$heroku = Heroku::API.new(api_key: ENV['HEROKU_API_KEY'])
+REDIS  = Redis.new(url: ENV["REDISCLOUD_URL"])
+HEROKU = Heroku::API.new(api_key: ENV['HEROKU_API_KEY'])
+RESTART_INTERVAL = (ENV['RESTART_INTERVAL'] || 1800).to_i
 
 get '/' do
   'ok'
@@ -28,10 +24,10 @@ post '/webhook' do
     source_name = event['source_name']
     restart_key = "heroku-dyno-restarter:restarts:#{source_name}:#{dyno}"
 
-    next if $redis.get(restart_key)
-    $redis.setex(restart_key, 3600, 1)
+    next if REDIS.get(restart_key)
+    REDIS.setex(restart_key, RESTART_INTERVAL, 1)
     logger.info "[RESTARTING] #{source_name}:#{dyno}"
-    $heroku.post_ps_restart(source_name, ps: dyno)
+    HEROKU.post_ps_restart(source_name, ps: dyno)
   end
 
   'ok'
