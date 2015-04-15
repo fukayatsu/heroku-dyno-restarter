@@ -20,8 +20,8 @@ post '/webhook' do
   logger.info "[webhook events] #{events}"
 
   events.each do |event|
-    dyno = event['program'].sub(/^heroku\//, '')
-    unless dyno.match(/web/)
+    dyno = event['message'].scan(/\sdyno=(\S+)\s/).flatten[0]
+    unless dyno.to_s.match(/web/)
       logger.info "[skip] non web dyno: #{dyno}"
       next
     end
