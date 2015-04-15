@@ -17,17 +17,27 @@ post '/webhook' do
   payload     = JSON.parse(params[:payload])
   events      = payload['events']
 
+  logger.info "[webhook events] #{events}"
+
   events.each do |event|
-    dyno        = event['program'].sub(/^heroku\//, '')
-    next unless dyno.match(/web/)
+    dyno = event['program'].sub(/^heroku\//, '')
+    unless dyno.match(/web/)
+      logger.info "[skip] non web dyno: #{dyno}"
+      next
+    end
 
     source_name = event['source_name']
     restart_key = "heroku-dyno-restarter:restarts:#{source_name}:#{dyno}"
 
-    next if REDIS.get(restart_key)
+    if REDIS.get(restart_key)
+      logger.info "[skip] restart_key exists: #{restart_key} for #{REDIS.ttl(restart_key)}"
+      next
+    end
+
     REDIS.setex(restart_key, RESTART_INTERVAL, 1)
     logger.info "[RESTARTING] #{source_name}:#{dyno}"
     HEROKU.post_ps_restart(source_name, ps: dyno)
+    logger.info "done restarting."
   end
 
   'ok'
