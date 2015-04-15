@@ -20,7 +20,8 @@ post '/webhook' do
   logger.info "[webhook events] #{events}"
 
   events.each do |event|
-    dyno = event['message'].scan(/\sdyno=(\S+)\s/).flatten[0]
+    message = event['message']
+    dyno    = message.scan(/\sdyno=(\S+)\s/).flatten[0]
     unless dyno.to_s.match(/web/)
       logger.info "[skip] non web dyno: #{dyno}"
       next
@@ -35,7 +36,7 @@ post '/webhook' do
     end
 
     REDIS.setex(restart_key, RESTART_INTERVAL, 1)
-    logger.info "[RESTARTING] #{source_name}:#{dyno}"
+    logger.info "[RESTARTING] #{source_name}:#{dyno} by #{message}"
     HEROKU.post_ps_restart(source_name, ps: dyno)
     logger.info "done restarting."
   end
