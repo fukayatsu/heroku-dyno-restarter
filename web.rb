@@ -14,6 +14,7 @@ end
 post '/webhook' do
   return 'invalid api token' unless params[:token] == ENV['APP_API_TOKEN']
 
+  restart_all = !!params[:restart_all]
   payload     = JSON.parse(params[:payload])
   events      = payload['events']
 
@@ -30,7 +31,11 @@ post '/webhook' do
     end
 
     source_name = event['source_name']
-    restart_key = "heroku-dyno-restarter:restarts:#{source_name}:#{dyno}:#{error_code}"
+    if restart_all
+      restart_key = "heroku-dyno-restarter:restarts:#{source_name}:all:#{error_code}"
+    else
+      restart_key = "heroku-dyno-restarter:restarts:#{source_name}:#{dyno}:#{error_code}"
+    end
 
     if REDIS.get(restart_key)
       logger.info "[skip] restart_key exists: #{restart_key} for #{REDIS.ttl(restart_key)}"
@@ -38,8 +43,13 @@ post '/webhook' do
     end
 
     REDIS.setex(restart_key, RESTART_INTERVAL, 1)
-    logger.info "[RESTARTING] #{source_name}:#{dyno} by #{error_code}: #{message}"
-    HEROKU.post_ps_restart(source_name, ps: dyno)
+    if restart_all
+      logger.info "[RESTARTING] #{source_name}:all by #{error_code}: #{message}"
+      HEROKU.post_ps_restart(source_name)
+    else
+      logger.info "[RESTARTING] #{source_name}:#{dyno} by #{error_code}: #{message}"
+      HEROKU.post_ps_restart(source_name, ps: dyno)
+    end
     logger.info "done restarting."
   end
 
