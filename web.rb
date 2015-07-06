@@ -3,7 +3,7 @@ require 'json'
 require 'redis'
 require 'heroku-api'
 
-REDIS  = Redis.new(url: ENV["REDISCLOUD_URL"])
+REDIS  = Redis.new(url: ENV['REDIS_URL'] || ENV["REDISCLOUD_URL"])
 HEROKU = Heroku::API.new(api_key: ENV['HEROKU_API_KEY'])
 RESTART_INTERVAL = (ENV['RESTART_INTERVAL'] || 1800).to_i
 
