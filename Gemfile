@@ -4,7 +4,7 @@ ruby '2.4.1'
 
 gem 'sinatra'
 gem 'redis'
-gem 'heroku-api'
+gem 'platform-api'
 gem 'thin'
 
 group :development do

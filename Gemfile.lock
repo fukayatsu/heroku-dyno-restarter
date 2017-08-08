@@ -3,15 +3,21 @@ GEM
   specs:
     coderay (1.1.0)
     daemons (1.2.1)
+    erubis (2.7.0)
     eventmachine (1.0.7)
-    excon (0.44.4)
+    excon (0.58.0)
     foreman (0.78.0)
       thor (~> 0.19.1)
-    heroku-api (0.3.22)
-      excon (~> 0.38)
-      multi_json (~> 1.8)
+    heroics (0.0.23)
+      erubis (~> 2.0)
+      excon
+      multi_json (>= 1.9.2)
     method_source (0.8.2)
-    multi_json (1.11.0)
+    moneta (0.8.1)
+    multi_json (1.12.1)
+    platform-api (2.1.0)
+      heroics (~> 0.0.23)
+      moneta (~> 0.8.1)
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -37,7 +43,7 @@ PLATFORMS
 
 DEPENDENCIES
   foreman
-  heroku-api
+  platform-api
   pry
   redis
   sinatra
