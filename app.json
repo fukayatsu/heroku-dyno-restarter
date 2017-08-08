@@ -1,0 +1,27 @@
+{
+  "name": "heroku-dyno-restarter",
+  "keywords": [
+    "heroku",
+    "Error R14 (Memory quota exceeded)"
+  ],
+  "env": {
+    "APP_API_TOKEN": {
+      "required": true,
+      "description": "A secret token for verifying the webhook via papertrail for your App.",
+      "generator": "secret"
+    },
+    "HEROKU_API_KEY": {
+      "required": true,
+      "description": "A heroku API key for restarting your App."
+    },
+    "RESTART_INTERVAL": {
+      "required": true,
+      "description": "Restert interval when detect ERROR R14.",
+      "value": "600"
+    }
+  },
+  "addons": [
+    "papertrail:choklad",
+    "rediscloud"
+  ]
+}
