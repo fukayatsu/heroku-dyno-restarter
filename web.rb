@@ -1,10 +1,10 @@
 require 'sinatra'
 require 'json'
 require 'redis'
-require 'heroku-api'
+require 'platform-api'
 
 REDIS  = Redis.new(url: ENV['REDIS_URL'] || ENV["REDISCLOUD_URL"])
-HEROKU = Heroku::API.new(api_key: ENV['HEROKU_API_KEY'])
+HEROKU = PlatformAPI.connect(ENV['HEROKU_API_KEY'])
 RESTART_INTERVAL = (ENV['RESTART_INTERVAL'] || 1800).to_i
 
 get '/' do
@@ -45,10 +45,10 @@ post '/webhook' do
     REDIS.setex(restart_key, RESTART_INTERVAL, 1)
     if restart_all
       logger.info "[RESTARTING] #{source_name}:all by #{error_code}: #{message}"
-      HEROKU.post_ps_restart(source_name)
+      HEROKU.dyno.restart_all(source_name)
     else
       logger.info "[RESTARTING] #{source_name}:#{dyno} by #{error_code}: #{message}"
-      HEROKU.post_ps_restart(source_name, ps: dyno)
+      HEROKU.dyno.restart(source_name, dyno)
     end
     logger.info "done restarting."
   end
