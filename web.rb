@@ -1,10 +1,10 @@
 require 'sinatra'
 require 'json'
 require 'redis'
-require 'heroku-api'
+require 'platform-api'
 
 REDIS  = Redis.new(url: ENV['REDIS_URL'] || ENV["REDISCLOUD_URL"])
-HEROKU = Heroku::API.new(api_key: ENV['HEROKU_API_KEY'])
+HEROKU = PlatformAPI.connect(ENV['HEROKU_API_KEY'])
 RESTART_INTERVAL = (ENV['RESTART_INTERVAL'] || 1800).to_i
 
 get '/' do
@@ -12,11 +12,14 @@ get '/' do
 end
 
 post '/webhook' do
-  return 'invalid api token' unless params[:token] == ENV['APP_API_TOKEN']
+  return bad_request('invalid api token') unless params[:token] == ENV['APP_API_TOKEN']
+  return bad_request('invalid payload') unless params[:payload]
 
   restart_all = !!params[:restart_all]
-  payload     = JSON.parse(params[:payload])
-  events      = payload['events']
+  payload     = JSON.parse(params[:payload]||'{}')
+  events      = payload.dig('events')
+
+  return bad_request('no events') unless events
 
   logger.info "[webhook events] #{events}"
 
@@ -36,7 +39,6 @@ post '/webhook' do
     else
       restart_key = "heroku-dyno-restarter:restarts:#{source_name}:#{dyno}:#{error_code}"
     end
-
     if REDIS.get(restart_key)
       logger.info "[skip] restart_key exists: #{restart_key} for #{REDIS.ttl(restart_key)}"
       next
@@ -45,13 +47,18 @@ post '/webhook' do
     REDIS.setex(restart_key, RESTART_INTERVAL, 1)
     if restart_all
       logger.info "[RESTARTING] #{source_name}:all by #{error_code}: #{message}"
-      HEROKU.post_ps_restart(source_name)
+      HEROKU.dyno.restart_all(source_name)
     else
       logger.info "[RESTARTING] #{source_name}:#{dyno} by #{error_code}: #{message}"
-      HEROKU.post_ps_restart(source_name, ps: dyno)
+      HEROKU.dyno.restart(source_name, dyno)
     end
     logger.info "done restarting."
   end
 
   'ok'
+end
+
+def bad_request(body)
+  status 400
+  body
 end
