@@ -12,11 +12,14 @@ get '/' do
 end
 
 post '/webhook' do
-  return 'invalid api token' unless params[:token] == ENV['APP_API_TOKEN']
+  return bad_request('invalid api token') unless params[:token] == ENV['APP_API_TOKEN']
+  return bad_request('invalid payload') unless params[:payload]
 
   restart_all = !!params[:restart_all]
-  payload     = JSON.parse(params[:payload])
-  events      = payload['events']
+  payload     = JSON.parse(params[:payload]||'{}')
+  events      = payload.dig('events')
+
+  return bad_request('no events') unless events
 
   logger.info "[webhook events] #{events}"
 
@@ -36,7 +39,6 @@ post '/webhook' do
     else
       restart_key = "heroku-dyno-restarter:restarts:#{source_name}:#{dyno}:#{error_code}"
     end
-
     if REDIS.get(restart_key)
       logger.info "[skip] restart_key exists: #{restart_key} for #{REDIS.ttl(restart_key)}"
       next
@@ -54,4 +56,9 @@ post '/webhook' do
   end
 
   'ok'
+end
+
+def bad_request(body)
+  status 400
+  body
 end
