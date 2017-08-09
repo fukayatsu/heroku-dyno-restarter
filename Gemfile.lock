@@ -19,6 +19,7 @@ GEM
     platform-api (2.1.0)
       heroics (~> 0.0.23)
       moneta (~> 0.8.1)
+    power_assert (1.0.2)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -26,13 +27,21 @@ GEM
     rack (2.0.3)
     rack-protection (2.0.0)
       rack
+    rack-test (0.7.0)
+      rack (>= 1.0, < 3)
     redis (3.3.3)
+    rr (1.2.1)
     sinatra (2.0.0)
       mustermann (~> 1.0)
       rack (~> 2.0)
       rack-protection (= 2.0.0)
       tilt (~> 2.0)
     slop (3.6.0)
+    test-unit (3.2.5)
+      power_assert
+    test-unit-rr (1.0.5)
+      rr (>= 1.1.1)
+      test-unit (>= 2.5.2)
     thin (1.7.2)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -47,8 +56,11 @@ DEPENDENCIES
   foreman
   platform-api
   pry
+  rack-test
   redis
   sinatra
+  test-unit
+  test-unit-rr
   thin
 
 RUBY VERSION

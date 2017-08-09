@@ -11,3 +11,9 @@ group :development do
   gem 'foreman'
   gem 'pry'
 end
+
+group :test do
+  gem 'rack-test'
+  gem 'test-unit'
+  gem 'test-unit-rr'
+end
