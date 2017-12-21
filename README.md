@@ -24,7 +24,14 @@ Restart web dyno via api (`heroku ps:restart web.x`)
 
 ## Heroku Button
 
+Press this button to deploy this app using your heroku account:
+
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+
+You will be asked to fill in a name for the app. Something like "my-company-dyno-restarter".
+
+You will also be asked for your heroku api key.
+You can get this key here: https://dashboard.heroku.com/account#api-key
 
 ## Papertrail alert and webhook
 
