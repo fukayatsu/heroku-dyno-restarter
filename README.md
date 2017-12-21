@@ -39,3 +39,13 @@ heroku config:get APP_API_TOKEN -a <your heroku-dyno-restarter app name>
 3. Set webhook URL: https://<your heroku-dyno-restarter app name>.herokuapp.com/webhook?token=<APP_API_TOKEN>
 
 ![papertrail's webhook](https://user-images.githubusercontent.com/536118/29061708-e495b9d0-7c59-11e7-96a6-13c73d04abb6.png)
+
+## Configuration
+
+Heroku Dyno Restarter will try to guess your app's name based on the papertrail alert. To override this guess,
+you can set `SOURCE_APP_NAME`:
+
+```
+heroku config:set SOURCE_APP_NAME=my-company-app -a <your heroku-dyno-restarter app name>
+```
+

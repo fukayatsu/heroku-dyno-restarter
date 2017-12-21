@@ -33,7 +33,7 @@ post '/webhook' do
       next
     end
 
-    source_name = event['source_name']
+    source_name = ENV['SOURCE_APP_NAME'] || event['source_name']
     if restart_all
       restart_key = "heroku-dyno-restarter:restarts:#{source_name}:all:#{error_code}"
     else
