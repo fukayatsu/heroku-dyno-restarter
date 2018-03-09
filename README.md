@@ -56,3 +56,9 @@ you can set `SOURCE_APP_NAME`:
 heroku config:set SOURCE_APP_NAME=my-company-app -a <your heroku-dyno-restarter app name>
 ```
 
+## Test
+
+
+```
+bundle exec rake
+```
