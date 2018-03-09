@@ -13,6 +13,7 @@ group :development do
 end
 
 group :test do
+  gem 'rake'
   gem 'rack-test'
   gem 'test-unit'
   gem 'test-unit-rr'

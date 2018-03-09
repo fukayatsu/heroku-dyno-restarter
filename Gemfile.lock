@@ -29,6 +29,7 @@ GEM
       rack
     rack-test (0.8.3)
       rack (>= 1.0, < 3)
+    rake (12.3.0)
     redis (4.0.1)
     rr (1.2.1)
     sinatra (2.0.1)
@@ -56,6 +57,7 @@ DEPENDENCIES
   platform-api
   pry
   rack-test
+  rake
   redis
   sinatra
   test-unit
